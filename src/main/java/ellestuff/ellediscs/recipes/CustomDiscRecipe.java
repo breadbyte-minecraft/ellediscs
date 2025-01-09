@@ -1,5 +1,6 @@
 package ellestuff.ellediscs.recipes;
 
+import ellestuff.ellediscs.ElleDiscsClient;
 import ellestuff.ellediscs.items.CustomDyeableItem;
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.DyeableItem;
@@ -8,7 +9,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
@@ -31,16 +34,15 @@ public class CustomDiscRecipe extends SpecialCraftingRecipe {
         this.accents = allowsAccents;
     }
 
-    public boolean matches(RecipeInputInventory recipeInputInventory, World world) {
+    @Override
+    public boolean matches(CraftingRecipeInput input, World world) {
         boolean hasRecord = false;
         boolean hasLabel = false;
         boolean hasModifier = false;
         //int dust = 0;
 
-
-
-        for(int i = 0; i < recipeInputInventory.size(); ++i) {
-            ItemStack itemStack = recipeInputInventory.getStack(i);
+        for(int i = 0; i < input.size(); ++i) {
+            ItemStack itemStack = input.getStackInSlot(i);
 
             if (record.test(itemStack)) {
                 if (hasRecord) {
@@ -74,15 +76,18 @@ public class CustomDiscRecipe extends SpecialCraftingRecipe {
     public ItemStack getOutput() { return output; }
     public Boolean getAccentBool() { return accents; }
 
-    public ItemStack craft(RecipeInputInventory recipeInputInventory, DynamicRegistryManager dynamicRegistryManager) {
+    @Override
+    public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup registries) {
         ItemStack result = output.copy();
-        NbtCompound nbtCompound = result.getOrCreateSubNbt("colours");
 
-        for(int i = 0; i < recipeInputInventory.size(); ++i) {
-            ItemStack itemStack = recipeInputInventory.getStack(i);
+        NbtCompound nbtCompound = result.set(ElleDiscsClient.COLOURS, new NbtCompound("0"));
+
+        for(int i = 0; i < input.size(); ++i) {
+            ItemStack itemStack = input.getStackInSlot(i);
             if (!itemStack.isEmpty()) {
                 if (itemStack.getItem() instanceof DyeableItem && ((DyeableItem)itemStack.getItem()).hasColor(itemStack)) {
                     if (record.test(itemStack)) {
+
                         nbtCompound.putInt("RecordColour", ((CustomDyeableItem)itemStack.getItem()).getColor(itemStack));
                     } else if (label.test(itemStack)) {
                         nbtCompound.putInt("LabelColour", ((CustomDyeableItem)itemStack.getItem()).getColor(itemStack));

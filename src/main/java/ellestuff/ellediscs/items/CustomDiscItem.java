@@ -1,9 +1,11 @@
 package ellestuff.ellediscs.items;
 
+import ellestuff.ellediscs.ElleDiscsClient;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MusicDiscItem;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CustomDiscItem extends MusicDiscItem {
+public class CustomDiscItem extends Item {
     int DEFAULT_RECORD_COLOR;
     int DEFAULT_LABEL_COLOR;
 
@@ -25,19 +27,20 @@ public class CustomDiscItem extends MusicDiscItem {
     }
 
     public int getRecordColor(ItemStack stack) {
-        NbtCompound nbtCompound = stack.getSubNbt("colours");
-        return nbtCompound != null && nbtCompound.contains("RecordColour", 99) ? nbtCompound.getInt("RecordColour") : DEFAULT_RECORD_COLOR;
+        Integer component = stack.get(ElleDiscsClient.RECORD_COLOUR);
+        return component != null ? component : DEFAULT_RECORD_COLOR;
     }
 
     public int getLabelColor(ItemStack stack) {
-        NbtCompound nbtCompound = stack.getSubNbt("colours");
-        return nbtCompound != null && nbtCompound.contains("LabelColour", 99) ? nbtCompound.getInt("LabelColour") : DEFAULT_LABEL_COLOR;
+        Integer component = stack.get(ElleDiscsClient.LABEL_COLOUR);
+        return component != null ? component : DEFAULT_LABEL_COLOR;
     }
 
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+    @Override
+    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
         tooltip.add(Text.translatable("item.ellediscs.discs.tip").formatted(Formatting.GRAY));
 
-        if (context.isAdvanced()) {
+        if (type.isAdvanced()) {
             String record_hex = Integer.toHexString(this.getRecordColor(stack)).toUpperCase();
             String label_hex = Integer.toHexString(this.getLabelColor(stack)).toUpperCase();
 
@@ -46,9 +49,20 @@ public class CustomDiscItem extends MusicDiscItem {
         }
     }
 
+
+    // TODO: Convert the from NBT to components
+    // Check if the item has a custom sound by checking if the "CustomSound" component exists.
+    // If it does, use that translation key, else, use ours.
+
+    @Override
+    public Text getName(ItemStack stack) {
+        return Text.translatable("item.ellediscs.music_disc");
+        return super.getName(stack);
+    }
+
     @Override
     public String getTranslationKey(ItemStack stack) {
-        NbtCompound nbtCompound = stack.getNbt();
+        ComponentMap components = stack.getComponents();
         if (nbtCompound != null && nbtCompound.contains("CustomSound")) { return "item.ellediscs.music_disc"; }
         return super.getTranslationKey(stack);
     }

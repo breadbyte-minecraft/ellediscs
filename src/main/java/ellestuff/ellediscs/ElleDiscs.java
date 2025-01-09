@@ -1,7 +1,9 @@
 package ellestuff.ellediscs;
 
+import com.mojang.serialization.Codec;
 import ellestuff.ellediscs.recipes.DiscRecipeSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.component.ComponentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import org.slf4j.Logger;

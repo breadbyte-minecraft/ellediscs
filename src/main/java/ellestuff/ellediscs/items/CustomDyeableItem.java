@@ -5,6 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 
+// TODO: DyeableItem doesn't exist anymore!
 public class CustomDyeableItem extends Item implements DyeableItem {
     int DEFAULT_COLOR;
 
